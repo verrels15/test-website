@@ -13,18 +13,40 @@
       "items": [
         { "time": "8:00 AM", "title": "Registration", "location": "Wolfe's Neck Center for Agriculture & the Environment · Freeport", "note": "", "start": "2026-09-15T08:00:00", "end": "2026-09-15T09:00:00" },
         { "time": "9:00 AM", "title": "Reconnection, gather with friends new and old, Guild introduction circles", "location": "Wolfe's Neck Center · Freeport", "note": "", "start": "2026-09-15T09:00:00", "end": "2026-09-15T10:00:00" },
-        { "time": "10:00 AM", "title": "Welcome, Zander Evans, & keynote: \"A Perspective on the Future of Forest Stewardship\", Laura McCarthy, New Mexico State Forester", "location": "Wolfe's Neck Center · Freeport", "note": "", "start": "2026-09-15T10:00:00", "end": "2026-09-15T11:00:00" },
-        { "time": "All day", "title": "Three concurrent working sessions", "location": "Wolfe's Neck Center · Freeport", "note": "Lunch included · Coastal trails for lunchtime stroll (exact window TBD, estimated 11:00 AM–4:00 PM for calendar purposes)", "start": "2026-09-15T11:00:00", "end": "2026-09-15T16:00:00" },
-        { "time": "Evening", "title": "Reception dinner", "location": "Harraseeket Inn · Freeport", "note": "Included in registration (exact window TBD, estimated 5:30–8:00 PM for calendar purposes)", "start": "2026-09-15T17:30:00", "end": "2026-09-15T20:00:00" }
+        { "time": "10:00 AM", "title": "Welcome, Zander Evans, & keynote: \"A Perspective on the Future of Forest Stewardship\", Laura McCarthy, New Mexico State Forester", "location": "Wolfe's Neck Center · Freeport", "note": "", "start": "2026-09-15T10:00:00", "end": "2026-09-15T10:30:00" },
+
+        { "time": "10:30 AM", "title": "Working Session 1: Indigenous stewardship & ecological forestry", "track": "eco", "location": "Wolfe's Neck Center · Freeport", "note": "An open conversation on concrete examples of how Indigenous stewardship and traditional ecological knowledge have been incorporated into ecological forestry on non-tribal lands.", "start": "2026-09-15T10:30:00", "end": "2026-09-15T12:00:00" },
+        { "time": "10:30 AM", "title": "Working Session 1: Stewardship for Land Conservation", "track": "all", "location": "Wolfe's Neck Center · Freeport", "note": "How land trusts are stewarding conservation lands, plus regional challenges and approaches. Facilitator: Erika Rowland.", "start": "2026-09-15T10:30:00", "end": "2026-09-15T12:00:00" },
+        { "time": "10:30 AM", "title": "Working Session 1: Forest Health Update", "track": "stress", "location": "Wolfe's Neck Center · Freeport", "note": "Flash presentations on HWA, buckthorn, Beech Leaf Disease, Eastern Spruce Budworm, and Mountain Pine Beetle, followed by discussion.", "start": "2026-09-15T10:30:00", "end": "2026-09-15T12:00:00" },
+
+        { "time": "12:00 PM", "title": "Lunch", "location": "Wolfe's Neck Center · Freeport", "note": "Catered lunch, included in registration", "start": "2026-09-15T12:00:00", "end": "2026-09-15T13:00:00" },
+
+        { "time": "1:00 PM", "title": "Working Session 2: Science and Policy for Ecological Integrity", "track": "eco", "location": "Wolfe's Neck Center · Freeport", "note": "Defining and measuring ecological integrity, drawing on FSC standards and the Guild's biomass harvesting guidelines. Facilitator: SJ Brown.", "start": "2026-09-15T13:00:00", "end": "2026-09-15T14:30:00" },
+        { "time": "1:00 PM", "title": "Working Session 2: Engaging Landowners in Stewardship", "track": "all", "location": "Wolfe's Neck Center · Freeport", "note": "Lessons from Women Owning Woodlands, Fire Adapted Communities, and Forestry for the Birds. Facilitators: Mike Lynch & Sarah Hagan.", "start": "2026-09-15T13:00:00", "end": "2026-09-15T14:30:00" },
+        { "time": "1:00 PM", "title": "Working Session 2: Sustaining Ash Partnership Network", "track": "stress", "location": "Wolfe's Neck Center · Freeport", "note": "Learn about SAP-Ne and work toward its extension and adoption. Facilitator: Rachel Swanwick.", "start": "2026-09-15T13:00:00", "end": "2026-09-15T14:30:00" },
+
+        { "time": "3:00 PM", "title": "Working Session 3: Markets to Support Ecological Forestry", "track": "eco", "location": "Wolfe's Neck Center · Freeport", "note": "Timber, carbon, water, and recreation markets that pay for work in the woods. Facilitator: Mike Lynch.", "start": "2026-09-15T15:00:00", "end": "2026-09-15T16:30:00" },
+        { "time": "3:00 PM", "title": "Working Session 3: Welcoming All Stewards", "track": "all", "location": "Wolfe's Neck Center · Freeport", "note": "Best practices for welcoming and supporting all stewardship and expanding membership. Facilitator: Sarah Hagan.", "start": "2026-09-15T15:00:00", "end": "2026-09-15T16:30:00" },
+        { "time": "3:00 PM", "title": "Working Session 3: Beneficial Fire", "track": "stress", "location": "Wolfe's Neck Center · Freeport", "note": "Cultural burning, prescribed fire, and managed wildfire as tools for resilient ecosystems. Facilitator: Esme Cadiente.", "start": "2026-09-15T15:00:00", "end": "2026-09-15T16:30:00" },
+
+        { "time": "6:00 PM", "title": "Reception dinner", "location": "Harraseeket Inn · Freeport", "note": "Included in registration (end time estimated, around 8:30 PM)", "start": "2026-09-15T18:00:00", "end": "2026-09-15T20:30:00" }
       ]
     },
     {
       "day": "Wednesday, September 16",
       "items": [
-        { "time": "Morning", "title": "Half-day field trip, choice of three (New England Forestry Foundation · Bliss Woods Preserve / Brunswick-Topsham Land Trust · Crystal Spring Farm / Wolfe's Neck Woods State Park)", "location": "Transportation provided", "note": "Lunch included (exact window TBD, estimated 8:00 AM–12:30 PM for calendar purposes)", "start": "2026-09-16T08:00:00", "end": "2026-09-16T12:30:00" },
-        { "time": "1:30 PM", "title": "Working Session 4, choice of three tracks", "location": "Wolfe's Neck Center · Freeport", "note": "", "start": "2026-09-16T13:30:00", "end": "2026-09-16T15:30:00" },
-        { "time": "3:30 PM", "title": "Working session action items & synthesis", "location": "Wolfe's Neck Center · Freeport", "note": "", "start": "2026-09-16T15:30:00", "end": "2026-09-16T17:00:00" },
-        { "time": "Evening", "title": "Catered dinner", "location": "Wolfe's Neck Center · Freeport", "note": "Included in registration (exact window TBD, estimated 6:00–8:30 PM for calendar purposes)", "start": "2026-09-16T18:00:00", "end": "2026-09-16T20:30:00" }
+        { "time": "8:00 AM", "title": "Half-day field trip, choice of three (New England Forestry Foundation Bliss Woods Preserve / Brunswick-Topsham Land Trust Crystal Spring Farm / Wolfe's Neck Woods State Park)", "location": "Transportation provided", "note": "Lunch included. You do not choose your field trip at registration, the team will follow up separately to arrange choices.", "start": "2026-09-16T08:00:00", "end": "2026-09-16T12:30:00" },
+        { "time": "12:30 PM", "title": "Lunch", "location": "Wolfe's Neck Center · Freeport", "note": "Return from field trips for lunch", "start": "2026-09-16T12:30:00", "end": "2026-09-16T13:30:00" },
+
+        { "time": "1:30 PM", "title": "Working Session 4: Stewarding Old Forests in a Changing Climate", "track": "eco", "location": "Wolfe's Neck Center · Freeport", "note": "Advancing tools, techniques, and policy for old forests, building on the Guild's Position Statement on Stewardship of Old Forests and Trees. Facilitator: Kristen Pelz.", "start": "2026-09-16T13:30:00", "end": "2026-09-16T15:00:00" },
+        { "time": "1:30 PM", "title": "Working Session 4: Workforce Development", "track": "all", "location": "Wolfe's Neck Center · Freeport", "note": "Strategies for engaging students, creating apprenticeships, and supporting early career stewards. Facilitator: Matt Piccarello.", "start": "2026-09-16T13:30:00", "end": "2026-09-16T15:00:00" },
+        { "time": "1:30 PM", "title": "Working Session 4: Extreme Weather", "track": "stress", "location": "Wolfe's Neck Center · Freeport", "note": "Mitigation and response strategies for floods, ice storms, and hurricanes, including forest-type specific approaches.", "start": "2026-09-16T13:30:00", "end": "2026-09-16T15:00:00" },
+
+        { "time": "3:30 PM", "title": "Working session action items: Advancing stewardship and ecological forestry", "track": "eco", "location": "Wolfe's Neck Center · Freeport", "note": "Opportunities for action at the individual member and Guild organizational level.", "start": "2026-09-16T15:30:00", "end": "2026-09-16T16:30:00" },
+        { "time": "3:30 PM", "title": "Working session action items: Outreach and engagement actions", "track": "all", "location": "Wolfe's Neck Center · Freeport", "note": "Opportunities for action at the individual member and Guild organizational level.", "start": "2026-09-16T15:30:00", "end": "2026-09-16T16:30:00" },
+        { "time": "3:30 PM", "title": "Working session action items: Action items by region", "track": "stress", "location": "Wolfe's Neck Center · Freeport", "note": "Opportunities for action at the individual member and Guild organizational level.", "start": "2026-09-16T15:30:00", "end": "2026-09-16T16:30:00" },
+
+        { "time": "6:00 PM", "title": "Catered dinner", "location": "Wolfe's Neck Center · Freeport", "note": "Included in registration (end time estimated, around 8:30 PM)", "start": "2026-09-16T18:00:00", "end": "2026-09-16T20:30:00" }
       ]
     },
     {
