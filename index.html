@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maine Guild Gathering: Attendee Guide</title>
+
+<!--
+  ============================================================
+  HOW TO EDIT THIS PAGE, TWO FILES NOW
+  ============================================================
+  1. index.html (this file), layout & design. Edit rarely.
+  2. data.json, schedule, announcements, and the attendee
+     directory. EDIT THIS ONE during the event.
+
+  HOW THE LIVE UPDATES WORK
+  ------------------------------------------------------------
+  This page checks data.json every ~45 seconds automatically.
+  To push an update during the event (e.g. "field tour moved
+  indoors"), just edit data.json and deploy to Netlify (e.g.
+  `netlify deploy --prod`, or push to the connected git repo
+  if continuous deployment is set up). Anyone with the page
+  already open will see the change within about a minute, no
+  reload needed. Anyone opening it fresh always gets the latest
+  version instantly.
+
+  This is NOT a lock-screen push notification, it's the free,
+  no-backend equivalent: the page quietly re-checks itself.
+  For a one-day in-person event this covers the real need
+  (get info to people fast) without any paid service.
+
+  IMPORTANT: this only works when served over http(s), i.e.
+  the live Netlify URL. Double-clicking the file on your
+  computer will NOT load data.json (browsers block local file
+  fetches). For local testing, run a local static server (see
+  .claude/launch.json, python3 -m http.server) and visit
+  http://localhost:7842/guide/ instead of opening the file
+  directly. Always confirm on the published Netlify URL too.
+
+  TO SET AN ANNOUNCEMENT BANNER:
+    In data.json, set "announcement" to your message, e.g.
+    "announcement": "Field tour moved indoors, meet in the
+    Great Hall instead of the trailhead."
+    Set it back to "" (empty) to hide the banner again.
+
+  TO ADD SOMEONE TO THE DIRECTORY:
+    Add an entry to the "directory" array in data.json:
+    { "name": "Jane Doe", "org": "Example Land Trust", "note": "" }
+    Nobody is listed until someone searches. The "Who's here" section is
+    look-someone-up only, not a browsable public list of every attendee.
+
+  TO TURN ON THE "NOW" / "UP NEXT" BADGE AND "ADD TO CALENDAR" LINK:
+    Add "start" (and optionally "end") to a schedule item in data.json, as
+    plain local event time, NO timezone offset needed or wanted. Always
+    write it as the actual Eastern time the session happens, e.g.:
+    { "time": "8:00 – 9:00 AM", "title": "Registration & coffee",
+      "location": "Main Lodge", "note": "", "start": "2026-09-15T08:00:00",
+      "end": "2026-09-15T09:00:00" }
+    The page always reads "start"/"end" as America/New_York time (handling
+    EDT/EST automatically), no matter what timezone a visitor's own phone
+    is set to, so it stays correct for out-of-state attendees too.
+    Leave "start" blank ("") to skip both features for that item, nothing
+    else changes. The "time" field is still what displays on the page; the
+    "start"/"end" fields are only used to compute what's happening now.
+
+  "MY SCHEDULE" (STAR + PERSONAL CALENDAR EXPORT):
+    Tapping the ☆ next to a session adds it to that visitor's own personal
+    pick list, stored only in their own phone's browser (localStorage),
+    not shared with anyone else, not visible to you, and not synced across
+    a visitor's own devices. "Show only my picks" filters the list down to
+    starred sessions, and "+ Add my schedule to calendar" bundles all of a
+    visitor's starred, timed sessions into one .ics download. Both need
+    "start" set on an item (see above) to count it.
+
+  BOTTOM MINI-BAR:
+    The thin bar above the mobile nav (and at the bottom on desktop) always
+    shows whatever session is currently "Now" or "Up next," computed from
+    the same "start"/"end" fields above, no separate setup needed. It's
+    hidden automatically when nothing is current or upcoming. Tapping it
+    jumps straight to that session in the Schedule section.
+
+  TO ADD THE REAL QR CODE (Connect section, "Scan to open this guide"):
+    A QR code needs a stable URL to encode, so it can't be made until this
+    site is actually deployed (localhost URLs won't work once printed).
+    Once you have the real Netlify URL:
+      1. Generate a QR code for it, any free QR tool works
+         (e.g. https://www.qr-code-generator.com).
+      2. Save the image into this "guide" folder, e.g. "guide-qr.png".
+      3. Replace the "qr-placeholder" div below with:
+         <img src="guide-qr.png" alt="QR code linking to this guide" style="margin-top:12px; width:140px; height:140px;">
+  ============================================================
+-->
+
+<style>
+  :root {
+    --teal: #0B5367;
+    --chartreuse: #C4D600;
+    --dark: #333333;
+    --footer-dark: #111111;
+    --stone: #F5F4F0;
+    --ink: #222222;
+    --mid-gray: #5A5A5A;
+    --tag-bg: #f2f7b3;
+    --tag-text: #5c6b00;
+    --white: #FFFFFF;
+    --nav-height: 56px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.01ms !important; scroll-behavior: auto !important; }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--stone);
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.55;
+    padding-bottom: 112px;
+  }
+
+  section { scroll-margin-top: calc(var(--nav-height) + 44px); }
+
+  a { color: var(--teal); }
+  a:focus-visible, button:focus-visible, summary:focus-visible {
+    outline: 3px solid var(--chartreuse);
+    outline-offset: 2px;
+  }
+
+  .wrap { max-width: 760px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- Announcement banner ---------- */
+  #announcementBanner {
+    display: none;
+    position: sticky;
+    top: var(--nav-height);
+    z-index: 19;
+    background: var(--chartreuse);
+    color: var(--dark);
+    font-weight: 700;
+    font-size: 0.92rem;
+    padding: 10px 0;
+    border-bottom: 2px solid var(--dark);
+  }
+  #announcementBanner.show { display: block; }
+  #announcementBanner .wrap { display: flex; align-items: center; gap: 8px; }
+  #announcementBanner .dot {
+    width: 8px; height: 8px; border-radius: 50%; background: var(--dark);
+    flex-shrink: 0; animation: pulse 1.6s infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+  /* ---------- Sync toast ---------- */
+  #syncToast {
+    position: fixed;
+    bottom: 84px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--dark);
+    color: var(--chartreuse);
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    z-index: 40;
+  }
+  #syncToast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  @media (min-width: 640px) { #syncToast { bottom: 24px; } }
+
+  /* ---------- Hero ---------- */
+  .hero { background: var(--teal); color: var(--white); padding: 52px 0 40px; }
+  .hero-eyebrow { font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--chartreuse); font-weight: 600; }
+  .hero h1 { font-weight: 700; font-size: clamp(2rem, 6.5vw, 3rem); line-height: 1.1; margin-top: 10px; max-width: 16ch; }
+  .hero p.tagline { margin-top: 12px; max-width: 46ch; color: #E4F0F0; font-size: 1.02rem; }
+
+  /* ---------- Quick nav ---------- */
+  .blaze-nav { position: sticky; top: 0; z-index: 20; background: var(--chartreuse); }
+  .blaze-nav .wrap { display: flex; gap: 6px; overflow-x: auto; padding-top: 10px; padding-bottom: 10px; scrollbar-width: none; }
+  .blaze-nav .wrap::-webkit-scrollbar { display: none; }
+  .blaze { font-size: 13px; font-weight: 700; text-decoration: none; color: var(--dark); white-space: nowrap; padding: 8px 14px; border-radius: 3px; }
+  .blaze:hover { background: rgba(0,0,0,0.08); }
+
+  /* ---------- Section headers ---------- */
+  .section { padding: 48px 0; }
+  .section.alt { background: var(--white); }
+  .section-head { margin-bottom: 24px; }
+  .section h2 { font-weight: 700; font-size: clamp(1.5rem, 4vw, 1.9rem); color: var(--teal); }
+  .section > .wrap > p.section-sub { color: var(--mid-gray); margin-top: 6px; margin-bottom: 26px; font-size: 0.96rem; }
+
+  .live-tag {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700;
+    color: var(--teal); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 10px;
+  }
+  .live-tag .dot { width: 7px; height: 7px; border-radius: 50%; background: #2E9E4F; animation: pulse 1.6s infinite; }
+
+  /* ---------- Schedule timeline ---------- */
+  .day-label {
+    font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--teal); font-weight: 700;
+    margin: 30px 0 14px; padding-bottom: 6px; border-bottom: 2px solid var(--chartreuse);
+  }
+  .day-label:first-of-type { margin-top: 0; }
+  .timeline { position: relative; border-left: 2px solid #DADAD2; padding-left: 22px; margin-left: 6px; }
+  .event-row { position: relative; padding-bottom: 24px; }
+  .event-row:last-child { padding-bottom: 4px; }
+  .event-row::before {
+    content: ""; position: absolute; left: -28px; top: 5px; width: 10px; height: 10px; border-radius: 50%;
+    background: var(--chartreuse); border: 2px solid var(--teal);
+  }
+  .event-time { font-size: 13px; color: var(--teal); font-weight: 700; }
+  .event-title { font-size: 1.08rem; font-weight: 600; margin-top: 2px; }
+  .event-loc { display: inline-block; margin-top: 6px; font-size: 12px; font-weight: 600; background: var(--tag-bg); color: var(--tag-text); padding: 3px 9px; border-radius: 3px; }
+  .event-note { margin-top: 6px; font-size: 0.94rem; color: var(--mid-gray); }
+  .event-cal-link { display: inline-block; margin-top: 6px; margin-left: 8px; font-size: 12px; font-weight: 700; color: var(--teal); text-decoration: underline; }
+  .loading-note { color: var(--mid-gray); font-size: 0.92rem; }
+
+  .event-row.is-now::before { background: #2E9E4F; border-color: #2E9E4F; }
+  .event-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; padding: 2px 8px; border-radius: 10px; margin-left: 8px; vertical-align: middle; }
+  .event-badge-now { background: #2E9E4F; color: var(--white); }
+  .event-badge-now .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--white); animation: pulse 1.6s infinite; }
+  .event-badge-next { background: var(--tag-bg); color: var(--tag-text); }
+
+  /* ---------- My schedule ---------- */
+  .schedule-controls {
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px 16px;
+    margin-bottom: 20px; padding: 12px 14px; background: var(--white); border: 1px solid #E2E1D8; border-radius: 4px;
+  }
+  .schedule-controls label { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.9rem; color: var(--teal); cursor: pointer; }
+  .schedule-controls input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--teal); }
+  .event-star {
+    background: none; border: 1.5px solid var(--teal); color: var(--teal); border-radius: 50%;
+    width: 44px; height: 44px; font-size: 18px; line-height: 1; cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center; margin-right: 8px; margin-left: -8px; vertical-align: middle;
+    flex-shrink: 0;
+  }
+  .event-star.is-picked { background: var(--teal); color: var(--chartreuse); }
+  .event-cal-link.is-hidden { display: none; }
+
+  /* ---------- QR placeholder ---------- */
+  .qr-placeholder {
+    margin-top: 12px; width: 140px; height: 140px; border: 2px dashed #B9B8AE; border-radius: 6px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+    font-weight: 700; color: var(--mid-gray); font-size: 13px; padding: 10px; gap: 4px;
+  }
+  .qr-placeholder span { font-weight: 400; font-size: 11px; }
+
+  /* ---------- Directions ---------- */
+  .directions-grid { display: grid; gap: 20px; }
+  @media (min-width: 640px) { .directions-grid { grid-template-columns: 1fr 1fr; } }
+  .info-card { background: var(--white); border: 1px solid #E2E1D8; border-radius: 4px; padding: 20px; }
+  .section.alt .info-card { background: var(--stone); }
+  .info-card h3 { font-size: 1.02rem; margin-bottom: 8px; color: var(--teal); }
+  .info-card p, .info-card li { font-size: 0.95rem; color: var(--ink); }
+  .info-card ul { padding-left: 18px; margin-top: 6px; }
+
+  .map-embed { margin-top: 22px; border: 1px solid #E2E1D8; border-radius: 4px; overflow: hidden; background: var(--white); }
+  .map-embed iframe { width: 100%; height: 320px; border: 0; display: block; }
+  .map-embed .map-caption { padding: 10px 16px; font-size: 12px; color: var(--mid-gray); }
+
+  /* ---------- Directory ---------- */
+  .directory-search {
+    width: 100%; padding: 12px 14px; font-size: 0.95rem; font-family: inherit;
+    border: 1px solid #E2E1D8; border-radius: 4px; margin-bottom: 18px; background: var(--white); color: var(--ink);
+  }
+  .directory-search::placeholder { color: var(--mid-gray); }
+  .directory-grid { display: grid; gap: 12px; grid-template-columns: 1fr; }
+  @media (min-width: 640px) { .directory-grid { grid-template-columns: 1fr 1fr; } }
+  .directory-card {
+    background: var(--white); border: 1px solid #E2E1D8; border-radius: 4px; padding: 14px 16px;
+    display: flex; align-items: center; gap: 12px;
+  }
+  .directory-avatar {
+    width: 36px; height: 36px; border-radius: 50%; background: var(--teal); color: var(--white);
+    display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0;
+  }
+  .directory-name { font-weight: 700; font-size: 0.95rem; }
+  .directory-org { font-size: 0.85rem; color: var(--mid-gray); }
+  .directory-note { font-size: 0.82rem; color: var(--teal); margin-top: 2px; }
+
+  /* ---------- Lodging ---------- */
+  .lodging-list { display: grid; gap: 16px; }
+
+  /* ---------- FAQ ---------- */
+  details { background: var(--white); border: 1px solid #E2E1D8; border-radius: 4px; margin-bottom: 10px; overflow: hidden; }
+  summary { cursor: pointer; list-style: none; padding: 16px 18px; font-weight: 700; font-size: 1rem; color: var(--teal); display: flex; align-items: center; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: "+"; margin-left: auto; font-size: 1.2rem; color: var(--teal); }
+  details[open] summary::after { content: "–"; }
+  .faq-body { padding: 0 18px 18px; font-size: 0.95rem; color: var(--mid-gray); }
+
+  .cta-button { display: inline-block; background: var(--dark); color: var(--chartreuse); font-weight: 700; padding: 10px 20px; border-radius: 4px; text-decoration: none; font-size: 0.95rem; }
+
+  /* ---------- Footer ---------- */
+  footer { background: var(--footer-dark); color: #DDDDDD; padding: 34px 0 26px; }
+  footer h3 { font-size: 1.05rem; color: var(--white); margin-bottom: 8px; }
+  footer p { font-size: 0.9rem; opacity: 0.85; }
+  footer a { color: var(--chartreuse); }
+  .footer-stamp { margin-top: 18px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.15); font-size: 11px; opacity: 0.6; }
+
+  /* ---------- Mobile bottom nav ---------- */
+  .bottom-fixed { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; }
+  .mobile-blaze-nav { background: var(--dark); display: flex; justify-content: space-around; padding: 10px 4px; }
+  .mobile-blaze-nav a { color: var(--chartreuse); text-decoration: none; font-size: 12px; font-weight: 700; text-align: center; padding: 4px 6px; }
+  @media (min-width: 640px) { .mobile-blaze-nav { display: none; } body { padding-bottom: 52px; } }
+
+  /* ---------- Now/next mini-bar ---------- */
+  #nowBar { display: none; }
+  #nowBar.show { display: block; }
+  .now-bar-link {
+    display: flex; align-items: center; gap: 10px; padding: 9px 16px;
+    background: var(--teal); color: var(--white); text-decoration: none;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+  }
+  .now-bar-badge {
+    flex-shrink: 0; display: inline-flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 700;
+    letter-spacing: 0.04em; text-transform: uppercase; padding: 3px 8px; border-radius: 10px;
+  }
+  .now-bar-badge-now { background: #2E9E4F; color: var(--white); }
+  .now-bar-badge-now .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--white); animation: pulse 1.6s infinite; }
+  .now-bar-badge-next { background: var(--chartreuse); color: var(--dark); }
+  .now-bar-text { font-size: 0.85rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-eyebrow">Forest Stewards Guild</div>
+    <h1>Maine Guild Gathering</h1>
+    <p class="tagline">Your guide to the day[s], schedule, directions, and everything you need on the ground. Bookmark this page.</p>
+  </div>
+</header>
+
+<nav class="blaze-nav" aria-label="Section navigation">
+  <div class="wrap">
+    <a class="blaze" href="#connect">Connect</a>
+    <a class="blaze" href="#schedule">Schedule</a>
+    <a class="blaze" href="#directions">Getting there</a>
+    <a class="blaze" href="#directory">Who's here</a>
+    <a class="blaze" href="#lodging">Where to stay</a>
+    <a class="blaze" href="#faq">FAQ</a>
+  </div>
+</nav>
+
+<section class="section alt connect" id="connect">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Stay connected</h2>
+      <p class="section-sub">The fastest ways to reach people during the gathering. No app to install.</p>
+    </div>
+    <div class="directions-grid">
+      <div class="info-card">
+        <h3>Group chat</h3>
+        <p>Join the [WhatsApp / Signal / Slack] group to connect with other attendees, swap plans, and get quick updates from the group.</p>
+        <p style="margin-top:12px;"><a class="cta-button" href="[GROUP CHAT INVITE LINK]" target="_blank" rel="noopener">Join the group chat →</a></p>
+      </div>
+      <div class="info-card">
+        <h3>Text or call the on-site team</h3>
+        <p>Have a question, need help, or something needs attention? Send a text, it goes straight to a real phone, no app required.</p>
+        <p style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+          <a class="cta-button" href="sms:5755204578">Text us →</a>
+          <a class="cta-button" style="background:transparent; color:var(--teal); border:1px solid var(--teal);" href="tel:5755204578">Call →</a>
+        </p>
+      </div>
+      <div class="info-card">
+        <h3>Share your photos</h3>
+        <p>Add your shots to the shared album, everyone can see and add photos in real time, right from their phone. Tag posts <strong>[#EventHashtag]</strong> too.</p>
+        <p style="margin-top:12px;"><a class="cta-button" href="[GOOGLE PHOTOS ALBUM LINK]" target="_blank" rel="noopener">Add photos to the album →</a></p>
+      </div>
+      <div class="info-card">
+        <h3>Scan to open this guide</h3>
+        <p>Print this on signage, table tents, or badges at check-in and around the venue so people can scan straight to this page instead of typing a URL.</p>
+        <div class="qr-placeholder">QR CODE<br><span>Add once the site is deployed, see comment in the page source</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="announcementBanner" role="status" aria-live="polite">
+  <div class="wrap"><span class="dot"></span><span id="announcementText"></span></div>
+</div>
+
+<section class="section schedule" id="schedule">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="live-tag"><span class="dot"></span>Live schedule</div>
+      <h2>Schedule</h2>
+      <p class="section-sub" style="font-weight:700; color:var(--ink); margin-bottom:4px;">September 15–17, 2026 · Wolfe's Neck Center · Freeport, Maine</p>
+      <p class="section-sub">Updates automatically. No need to reload. Check signage on-site too.</p>
+    </div>
+    <div class="schedule-controls">
+      <label><input type="checkbox" id="myScheduleToggle"> Show only my picks (<span id="myScheduleCount">0</span>)</label>
+      <a id="myScheduleCalLink" class="event-cal-link is-hidden" download="my-schedule.ics" href="#">+ Add my schedule to calendar</a>
+    </div>
+    <div id="scheduleContent">
+      <p class="loading-note">Loading schedule…</p>
+    </div>
+  </div>
+</section>
+
+<section class="section alt directions" id="directions">
+  <div class="wrap">
+    <div class="section-head"><h2>Getting there</h2></div>
+    <div class="directions-grid">
+      <div class="info-card">
+        <h3>Address</h3>
+        <p>[Venue Name]<br>[Street Address]<br>[Town, ME ZIP]</p>
+        <p style="margin-top:12px;"><a class="cta-button" href="https://maps.google.com/?q=[Venue+Name+Town+ME]" target="_blank" rel="noopener">Open in Google Maps</a></p>
+      </div>
+      <div class="info-card">
+        <h3>Parking</h3>
+        <ul><li>[Where to park, lot name/location]</li><li>[Overflow parking, if any]</li><li>[Accessible parking notes]</li></ul>
+      </div>
+      <div class="info-card">
+        <h3>From the highway</h3>
+        <p>[Turn-by-turn or general routing note, e.g. "Exit 12 off I-95, follow signs for [Town]. Venue driveway is on the right."]</p>
+      </div>
+      <div class="info-card">
+        <h3>On arrival</h3>
+        <ul><li>[Where to check in]</li><li>Wifi: [network name] / [password]</li><li>[Cell signal note, if remote]</li></ul>
+      </div>
+    </div>
+    <div class="map-embed">
+      <iframe src="https://www.openstreetmap.org/export/embed.html?bbox=-70.5%2C43.6%2C-69.5%2C44.2&layer=mapnik" loading="lazy" title="Map of venue area, replace with exact venue location"></iframe>
+      <div class="map-caption">[Replace this map embed with your exact venue, see comment in the page source]</div>
+    </div>
+  </div>
+</section>
+
+<section class="section directory" id="directory">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="live-tag"><span class="dot"></span>Live directory</div>
+      <h2>Who's here</h2>
+      <p class="section-sub">Look someone up by name or organization. Not a public list, not messaging, just a lookup.</p>
+    </div>
+    <input type="search" id="directorySearch" class="directory-search" placeholder="Search by name or organization…" aria-label="Search attendee directory">
+    <div class="directory-grid" id="directoryContent">
+      <p class="loading-note">Loading directory…</p>
+    </div>
+  </div>
+</section>
+
+<section class="section alt lodging" id="lodging">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Where to stay</h2>
+      <p class="section-sub">[Note if lodging is on-site, or a short intro to nearby options.]</p>
+    </div>
+    <div class="lodging-list">
+      <div class="info-card"><h3>[On-site lodging, if applicable]</h3><p>[Details, cabins, dorm rooms, camping, etc.]</p></div>
+      <div class="info-card"><h3>[Nearby hotel/inn name]</h3><p>[Distance from venue] · [Booking link or phone number] · [Group rate/code, if any]</p></div>
+      <div class="info-card"><h3>[Second nearby option]</h3><p>[Distance from venue] · [Booking link or phone number]</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section faq" id="faq">
+  <div class="wrap">
+    <div class="section-head"><h2>Good to know</h2></div>
+    <details><summary>What should I bring?</summary><div class="faq-body">[Weather-appropriate layers, sturdy footwear for the field tour, a water bottle, edit to fit your agenda.]</div></details>
+    <details><summary>What happens if it rains?</summary><div class="faq-body">[Rain plan for outdoor sessions, indoor alternate location, or "sessions proceed rain or shine."]</div></details>
+    <details><summary>Is there a dietary accommodation for meals?</summary><div class="faq-body">[How attendees flagged dietary needs at registration, and who to contact with last-minute questions.]</div></details>
+    <details><summary>Who do I contact in an emergency on-site?</summary><div class="faq-body">[Name and phone number of the on-site point of contact.]</div></details>
+    <details><summary>Will sessions be recorded?</summary><div class="faq-body">[Yes/no, and where recordings will be shared afterward.]</div></details>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <h3>Need help on-site?</h3>
+    <p><a href="tel:[PHONE NUMBER]" style="color:var(--chartreuse);">[Name] · [Phone number]</a> · <a href="mailto:[EMAIL]" style="color:var(--chartreuse);">[Email]</a></p>
+    <p style="margin-top:6px;">Prefer to text? <a href="sms:[PHONE NUMBER]" style="color:var(--chartreuse);">Send a message →</a></p>
+    <p style="margin-top:10px;">Forest Stewards Guild · <a href="https://forestguild.org" target="_blank" rel="noopener">forestguild.org</a></p>
+    <div class="footer-stamp" id="syncStamp">Checking for updates…</div>
+  </div>
+</footer>
+
+<div class="bottom-fixed">
+  <div id="nowBar"></div>
+  <nav class="mobile-blaze-nav" aria-label="Quick navigation">
+    <a href="#connect">Connect</a>
+    <a href="#schedule">Schedule</a>
+    <a href="#directions">Directions</a>
+    <a href="#directory">Who's here</a>
+    <a href="#faq">FAQ</a>
+  </nav>
+</div>
+
+<div id="syncToast">Updated with the latest info</div>
+
+<script>
+  var lastSeenUpdate = null;
+  var firstLoad = true;
+
+  function escapeHtml(str) {
+    var d = document.createElement('div');
+    d.textContent = str == null ? '' : str;
+    return d.innerHTML;
+  }
+
+  function initials(name) {
+    if (!name) return '?';
+    var parts = name.trim().split(/\s+/);
+    return (parts[0][0] + (parts[1] ? parts[1][0] : '')).toUpperCase();
+  }
+
+  // Works out the UTC offset (in minutes) a given timezone was actually
+  // observing at a specific instant, i.e. it knows about EDT vs EST, so
+  // callers don't have to track daylight saving by hand.
+  function getTzOffsetMinutes(timeZone, utcDate) {
+    var dtf = new Intl.DateTimeFormat('en-US', {
+      timeZone: timeZone, hourCycle: 'h23',
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit'
+    });
+    var parts = {};
+    dtf.formatToParts(utcDate).forEach(function (p) { parts[p.type] = p.value; });
+    var asIfUtcMs = Date.UTC(+parts.year, +parts.month - 1, +parts.day, +parts.hour, +parts.minute, +parts.second);
+    return (asIfUtcMs - utcDate.getTime()) / 60000;
+  }
+
+  // Every schedule time is always treated as America/New_York wall-clock
+  // time, the event's own timezone, no matter what's typed in data.json
+  // (a bare "2026-09-15T08:00:00", or one with a "-04:00"/"Z" tacked on)
+  // and no matter what timezone the visitor's own phone is set to. This is
+  // what makes the NOW/UP NEXT badge reliable for someone browsing from
+  // out of state: the event's actual local time always wins.
+  function parseEasternWallTime(str) {
+    var naive = String(str).replace(/(Z|[+-]\d{2}:?\d{2})$/, '');
+    var guess = new Date(naive + 'Z');
+    if (isNaN(guess.getTime())) return null;
+    var offsetMin = getTzOffsetMinutes('America/New_York', guess);
+    return new Date(guess.getTime() - offsetMin * 60000);
+  }
+
+  // An item is "live-aware" once it has a "start" (and optionally "end"),
+  // e.g. "start": "2026-09-15T08:00:00", always read as Eastern time (see
+  // parseEasternWallTime above). Leave both blank to skip the NOW/UP NEXT
+  // badge and "add to calendar" link for that item, nothing else breaks.
+  function parseItemTimes(item) {
+    if (!item.start) return null;
+    var start = parseEasternWallTime(item.start);
+    if (!start) return null;
+    var end = item.end ? parseEasternWallTime(item.end) : null;
+    if (!end) end = new Date(start.getTime() + 30 * 60000);
+    return { start: start, end: end };
+  }
+
+  // Marks at most one item "now" (in progress) and, if none is in progress,
+  // the single soonest upcoming item as "next", across all days combined.
+  function computeStatuses(days) {
+    var now = new Date();
+    var flat = [];
+    (days || []).forEach(function (day) {
+      (day.items || []).forEach(function (item) {
+        var t = parseItemTimes(item);
+        item.__times = t;
+        item.__status = null;
+        if (t) flat.push({ item: item, start: t.start, end: t.end });
+      });
+    });
+    flat.sort(function (a, b) { return a.start - b.start; });
+    var foundNow = false;
+    flat.forEach(function (entry) {
+      if (entry.start <= now && now < entry.end) { entry.item.__status = 'now'; foundNow = true; }
+    });
+    if (!foundNow) {
+      for (var i = 0; i < flat.length; i++) {
+        if (flat[i].start > now) { flat[i].item.__status = 'next'; break; }
+      }
+    }
+  }
+
+  function icsEscape(str) {
+    return String(str == null ? '' : str).replace(/([,;])/g, '\\$1').replace(/\n/g, '\\n');
+  }
+
+  function icsDate(d) {
+    var pad = function (n) { return (n < 10 ? '0' : '') + n; };
+    return d.getUTCFullYear() + pad(d.getUTCMonth() + 1) + pad(d.getUTCDate())
+      + 'T' + pad(d.getUTCHours()) + pad(d.getUTCMinutes()) + pad(d.getUTCSeconds()) + 'Z';
+  }
+
+  function buildIcsHrefMulti(entries) {
+    var lines = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Forest Stewards Guild//Attendee Guide//EN'];
+    entries.forEach(function (e) {
+      lines.push('BEGIN:VEVENT');
+      lines.push('UID:' + Date.now() + '-' + Math.random().toString(36).slice(2) + '@fsg-gathering');
+      lines.push('DTSTAMP:' + icsDate(new Date()));
+      lines.push('DTSTART:' + icsDate(e.start));
+      lines.push('DTEND:' + icsDate(e.end));
+      lines.push('SUMMARY:' + icsEscape(e.item.title));
+      if (e.item.location) lines.push('LOCATION:' + icsEscape(e.item.location));
+      if (e.item.note) lines.push('DESCRIPTION:' + icsEscape(e.item.note));
+      lines.push('END:VEVENT');
+    });
+    lines.push('END:VCALENDAR');
+    return 'data:text/calendar;charset=utf-8,' + encodeURIComponent(lines.join('\r\n'));
+  }
+
+  function buildIcsHref(item, start, end) {
+    return buildIcsHrefMulti([{ item: item, start: start, end: end }]);
+  }
+
+  // "My schedule", a personal pick list stored only in this browser
+  // (localStorage), not shared across devices or with anyone else.
+  var MY_SCHEDULE_KEY = 'fsgGuideMySchedule';
+  var lastScheduleDays = null;
+  var showOnlyMine = false;
+
+  function getPicks() {
+    try { return JSON.parse(localStorage.getItem(MY_SCHEDULE_KEY) || '{}'); } catch (e) { return {}; }
+  }
+  // Returns true/false so callers can tell the user when a phone's privacy
+  // settings (e.g. Safari Private Browsing, "Block All Cookies") are
+  // silently blocking storage, otherwise a star tap looks like it did
+  // nothing at all, with no clue why.
+  function savePicks(picks) {
+    try { localStorage.setItem(MY_SCHEDULE_KEY, JSON.stringify(picks)); return true; } catch (e) { return false; }
+  }
+  function itemKey(dayLabel, item) {
+    return dayLabel + '__' + item.time + '__' + item.title;
+  }
+
+  // Renders the persistent bottom mini-bar showing the current or next
+  // session, so "what's happening" is visible from anywhere on the page,
+  // not just when scrolled down to the Schedule section.
+  function updateNowBar(nowItems, nextItem) {
+    var bar = document.getElementById('nowBar');
+    if (!bar) return;
+    if (nowItems.length) {
+      var label = nowItems.length > 1 ? nowItems.length + ' sessions happening now' : nowItems[0].title;
+      bar.innerHTML = '<a href="#schedule" class="now-bar-link"><span class="now-bar-badge now-bar-badge-now"><span class="dot"></span>Now</span><span class="now-bar-text">' + escapeHtml(label) + '</span></a>';
+      bar.classList.add('show');
+    } else if (nextItem) {
+      bar.innerHTML = '<a href="#schedule" class="now-bar-link"><span class="now-bar-badge now-bar-badge-next">Up next</span><span class="now-bar-text">' + escapeHtml(nextItem.title) + '</span></a>';
+      bar.classList.add('show');
+    } else {
+      bar.innerHTML = '';
+      bar.classList.remove('show');
+    }
+  }
+
+  function renderSchedule(days) {
+    var el = document.getElementById('scheduleContent');
+    if (!days || !days.length) { el.innerHTML = '<p class="loading-note">Schedule coming soon.</p>'; updateNowBar([], null); return; }
+    lastScheduleDays = days;
+    computeStatuses(days);
+    var picks = getPicks();
+
+    // Collect every picked, timed item across all days (regardless of the
+    // "show only my picks" filter) so the bulk calendar link always reflects
+    // the full list. Also work out what the mini-bar should point at: the
+    // first in-progress session, or failing that the single soonest one.
+    var pickedEntries = [];
+    var nowItems = [];
+    var nextItem = null;
+    days.forEach(function (day) {
+      (day.items || []).forEach(function (item) {
+        if (picks[itemKey(day.day, item)] && item.__times) {
+          pickedEntries.push({ item: item, start: item.__times.start, end: item.__times.end });
+        }
+        if (item.__status === 'now') nowItems.push(item);
+        else if (item.__status === 'next' && !nextItem) nextItem = item;
+      });
+    });
+    var targetItem = nowItems[0] || nextItem || null;
+
+    var html = '';
+    days.forEach(function (day) {
+      var dayItems = (day.items || []).filter(function (item) {
+        return !showOnlyMine || picks[itemKey(day.day, item)];
+      });
+      if (!dayItems.length) return;
+      html += '<div class="day-label">' + escapeHtml(day.day) + '</div><div class="timeline">';
+      dayItems.forEach(function (item) {
+        var key = itemKey(day.day, item);
+        var isPicked = !!picks[key];
+        var badge = '';
+        if (item.__status === 'now') {
+          badge = '<span class="event-badge event-badge-now"><span class="dot"></span>Now</span>';
+        } else if (item.__status === 'next') {
+          badge = '<span class="event-badge event-badge-next">Up next</span>';
+        }
+        var calLink = item.__times
+          ? '<a class="event-cal-link" download="' + escapeHtml((item.title || 'event').replace(/[^\w\- ]/g, '')) + '.ics" href="' + buildIcsHref(item, item.__times.start, item.__times.end) + '">+ Add to calendar</a>'
+          : '';
+        html += '<div class="event-row' + (item.__status === 'now' ? ' is-now' : '') + '"' + (item === targetItem ? ' id="scheduleNowTarget"' : '') + '>'
+          + '<button type="button" class="event-star' + (isPicked ? ' is-picked' : '') + '" data-key="' + escapeHtml(key) + '" aria-pressed="' + isPicked + '" aria-label="' + (isPicked ? 'Remove from my schedule' : 'Add to my schedule') + '">' + (isPicked ? '★' : '☆') + '</button>'
+          + '<div class="event-time">' + escapeHtml(item.time) + badge + '</div>'
+          + '<div class="event-title">' + escapeHtml(item.title) + '</div>'
+          + (item.location ? '<span class="event-loc">' + escapeHtml(item.location) + '</span>' : '')
+          + (item.note ? '<p class="event-note">' + escapeHtml(item.note) + '</p>' : '')
+          + calLink
+          + '</div>';
+      });
+      html += '</div>';
+    });
+    if (!html) {
+      html = '<p class="loading-note">You haven\'t starred any sessions yet. Tap ☆ next to a session to add it to your schedule.</p>';
+    }
+    el.innerHTML = html;
+    updateNowBar(nowItems, nextItem);
+
+    var countEl = document.getElementById('myScheduleCount');
+    var calEl = document.getElementById('myScheduleCalLink');
+    if (countEl) countEl.textContent = pickedEntries.length;
+    if (calEl) {
+      if (pickedEntries.length) {
+        calEl.href = buildIcsHrefMulti(pickedEntries);
+        calEl.classList.remove('is-hidden');
+      } else {
+        calEl.classList.add('is-hidden');
+      }
+    }
+  }
+
+  // Nobody is listed by default. The directory only shows results once
+  // someone types a search, so the page never displays the full attendee
+  // list to anyone just glancing at it.
+  var lastDirectoryPeople = [];
+
+  function renderDirectory(people) {
+    lastDirectoryPeople = people || [];
+    applyDirectoryFilter();
+  }
+
+  function applyDirectoryFilter() {
+    var el = document.getElementById('directoryContent');
+    var searchEl = document.getElementById('directorySearch');
+    var query = (searchEl && searchEl.value ? searchEl.value : '').trim().toLowerCase();
+
+    if (!lastDirectoryPeople.length) { el.innerHTML = '<p class="loading-note">No attendees listed yet.</p>'; return; }
+    if (!query) {
+      el.innerHTML = '<p class="loading-note">' + lastDirectoryPeople.length + ' attendees so far. Start typing a name or organization above to find someone.</p>';
+      return;
+    }
+
+    var matches = lastDirectoryPeople.filter(function (p) {
+      return (p.name + ' ' + p.org + ' ' + (p.note || '')).toLowerCase().indexOf(query) !== -1;
+    });
+    if (!matches.length) {
+      el.innerHTML = '<p class="loading-note">No matches for “' + escapeHtml(searchEl.value.trim()) + '”.</p>';
+      return;
+    }
+
+    var html = '';
+    matches.forEach(function (p) {
+      html += '<div class="directory-card">'
+        + '<div class="directory-avatar">' + escapeHtml(initials(p.name)) + '</div>'
+        + '<div><div class="directory-name">' + escapeHtml(p.name) + '</div>'
+        + '<div class="directory-org">' + escapeHtml(p.org) + '</div>'
+        + (p.note ? '<div class="directory-note">' + escapeHtml(p.note) + '</div>' : '')
+        + '</div></div>';
+    });
+    el.innerHTML = html;
+  }
+
+  function renderAnnouncement(text) {
+    var banner = document.getElementById('announcementBanner');
+    var textEl = document.getElementById('announcementText');
+    if (text && text.trim()) {
+      textEl.textContent = text;
+      banner.classList.add('show');
+    } else {
+      banner.classList.remove('show');
+    }
+  }
+
+  function showToast(message) {
+    var toast = document.getElementById('syncToast');
+    toast.textContent = message || 'Updated with the latest info';
+    toast.classList.add('show');
+    setTimeout(function () { toast.classList.remove('show'); }, 3200);
+  }
+
+  function syncStamp(date) {
+    var el = document.getElementById('syncStamp');
+    var t = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    el.textContent = 'Last checked ' + t + ' · Maine Guild Gathering';
+  }
+
+  function loadData() {
+    fetch('data.json?_=' + Date.now(), { cache: 'no-store' })
+      .then(function (res) { if (!res.ok) throw new Error('fetch failed'); return res.json(); })
+      .then(function (data) {
+        renderSchedule(data.schedule);
+        renderDirectory(data.directory);
+        renderAnnouncement(data.announcement);
+        if (!firstLoad && data.lastUpdated !== lastSeenUpdate) { showToast(); }
+        lastSeenUpdate = data.lastUpdated;
+        firstLoad = false;
+        syncStamp(new Date());
+      })
+      .catch(function () {
+        if (firstLoad) {
+          document.getElementById('scheduleContent').innerHTML =
+            '<p class="loading-note">Couldn\'t load the schedule. If you opened this file directly (file://), serve it from a local server or the live Netlify URL instead, local files can\'t load data.json.</p>';
+          document.getElementById('directoryContent').innerHTML =
+            '<p class="loading-note">Couldn\'t load the directory.</p>';
+        }
+      });
+  }
+
+  document.getElementById('directorySearch').addEventListener('input', applyDirectoryFilter);
+
+  document.getElementById('scheduleContent').addEventListener('click', function (e) {
+    var btn = e.target.closest && e.target.closest('.event-star');
+    if (!btn) return;
+    var key = btn.getAttribute('data-key');
+    var picks = getPicks();
+    if (picks[key]) { delete picks[key]; } else { picks[key] = true; }
+    var saved = savePicks(picks);
+    renderSchedule(lastScheduleDays);
+    if (!saved) {
+      showToast('Couldn\'t save, your phone may be blocking storage (try turning off Private Browsing, or allowing cookies for this site).');
+    }
+  });
+
+  document.getElementById('myScheduleToggle').addEventListener('change', function (e) {
+    showOnlyMine = e.target.checked;
+    renderSchedule(lastScheduleDays);
+  });
+
+  document.getElementById('nowBar').addEventListener('click', function (e) {
+    var link = e.target.closest && e.target.closest('a');
+    if (!link) return;
+    var target = document.getElementById('scheduleNowTarget');
+    if (target) {
+      e.preventDefault();
+      target.scrollIntoView({ block: 'center' });
+    }
+  });
+
+  loadData();
+  setInterval(loadData, 45000);
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) loadData();
+  });
+</script>
+
+</body>
+</html>

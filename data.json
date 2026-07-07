@@ -1,0 +1,44 @@
+{
+  "lastUpdated": "[2026-07-02T09:00:00-04:00]",
+  "announcement": "",
+  "schedule": [
+    {
+      "day": "Monday, September 14, Optional Arrival Day",
+      "items": [
+        { "time": "5:00 – 7:00 PM", "title": "Welcome reception", "location": "Mast Landing Brewery · Freeport, ME", "note": "Optional · Drinks on your own", "start": "2026-09-14T17:00:00", "end": "2026-09-14T19:00:00" }
+      ]
+    },
+    {
+      "day": "Tuesday, September 15",
+      "items": [
+        { "time": "8:00 AM", "title": "Registration", "location": "Wolfe's Neck Center for Agriculture & the Environment · Freeport", "note": "", "start": "2026-09-15T08:00:00", "end": "2026-09-15T09:00:00" },
+        { "time": "9:00 AM", "title": "Reconnection, gather with friends new and old, Guild introduction circles", "location": "Wolfe's Neck Center · Freeport", "note": "", "start": "2026-09-15T09:00:00", "end": "2026-09-15T10:00:00" },
+        { "time": "10:00 AM", "title": "Welcome, Zander Evans, & keynote: \"A Perspective on the Future of Forest Stewardship\", Laura McCarthy, New Mexico State Forester", "location": "Wolfe's Neck Center · Freeport", "note": "", "start": "2026-09-15T10:00:00", "end": "2026-09-15T11:00:00" },
+        { "time": "All day", "title": "Three concurrent working sessions", "location": "Wolfe's Neck Center · Freeport", "note": "Lunch included · Coastal trails for lunchtime stroll (exact window TBD, estimated 11:00 AM–4:00 PM for calendar purposes)", "start": "2026-09-15T11:00:00", "end": "2026-09-15T16:00:00" },
+        { "time": "Evening", "title": "Reception dinner", "location": "Harraseeket Inn · Freeport", "note": "Included in registration (exact window TBD, estimated 5:30–8:00 PM for calendar purposes)", "start": "2026-09-15T17:30:00", "end": "2026-09-15T20:00:00" }
+      ]
+    },
+    {
+      "day": "Wednesday, September 16",
+      "items": [
+        { "time": "Morning", "title": "Half-day field trip, choice of three (New England Forestry Foundation · Bliss Woods Preserve / Brunswick-Topsham Land Trust · Crystal Spring Farm / Wolfe's Neck Woods State Park)", "location": "Transportation provided", "note": "Lunch included (exact window TBD, estimated 8:00 AM–12:30 PM for calendar purposes)", "start": "2026-09-16T08:00:00", "end": "2026-09-16T12:30:00" },
+        { "time": "1:30 PM", "title": "Working Session 4, choice of three tracks", "location": "Wolfe's Neck Center · Freeport", "note": "", "start": "2026-09-16T13:30:00", "end": "2026-09-16T15:30:00" },
+        { "time": "3:30 PM", "title": "Working session action items & synthesis", "location": "Wolfe's Neck Center · Freeport", "note": "", "start": "2026-09-16T15:30:00", "end": "2026-09-16T17:00:00" },
+        { "time": "Evening", "title": "Catered dinner", "location": "Wolfe's Neck Center · Freeport", "note": "Included in registration (exact window TBD, estimated 6:00–8:30 PM for calendar purposes)", "start": "2026-09-16T18:00:00", "end": "2026-09-16T20:30:00" }
+      ]
+    },
+    {
+      "day": "Thursday, September 17",
+      "items": [
+        { "time": "Full day, North loop", "title": "Holt Research Forest (pending), The Nature Conservancy's Mill Pond Preserve (pending)", "location": "Transportation provided", "note": "Bag lunch included (exact window TBD, estimated 8:00 AM–4:00 PM for calendar purposes)", "start": "2026-09-17T08:00:00", "end": "2026-09-17T16:00:00" },
+        { "time": "Full day, South loop", "title": "Ash treatments demo, Maine Audubon's Gilsland Farm; Massabesic Experimental Forest, US Forest Service", "location": "Falmouth & Alfred/Lyman, ME · Under 40 min from venue", "note": "Bag lunch included · Transportation provided (exact window TBD, estimated 8:00 AM–4:00 PM for calendar purposes)", "start": "2026-09-17T08:00:00", "end": "2026-09-17T16:00:00" },
+        { "time": "Evening", "title": "Dinner on your own in Portland (optional group reservations available)", "location": "Old Port · Portland, ME", "note": "Optional · Not included in registration", "start": "", "end": "" }
+      ]
+    }
+  ],
+  "directory": [
+    { "name": "[Name]", "org": "[Organization]", "note": "[optional, role, interest]" },
+    { "name": "[Name]", "org": "[Organization]", "note": "" },
+    { "name": "[Name]", "org": "[Organization]", "note": "" }
+  ]
+}
