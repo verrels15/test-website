@@ -63,14 +63,25 @@
     else changes. The "time" field is still what displays on the page; the
     "start"/"end" fields are only used to compute what's happening now.
 
-  "MY SCHEDULE" (STAR + PERSONAL CALENDAR EXPORT):
-    Tapping the ☆ next to a session adds it to that visitor's own personal
-    pick list, stored only in their own phone's browser (localStorage),
-    not shared with anyone else, not visible to you, and not synced across
-    a visitor's own devices. "Show only my picks" filters the list down to
-    starred sessions, and "+ Add my schedule to calendar" bundles all of a
-    visitor's starred, timed sessions into one .ics download. Both need
-    "start" set on an item (see above) to count it.
+  TO COLOR-CODE A WORKING SESSION BY TRACK:
+    Add "track" to a schedule item, set to "eco", "all", or "stress"
+    (matching the agenda PDF's track colors: eco = blue = Ecological
+    Forestry, all = red = Stewardship for All, stress = green = Stress
+    and Disturbance). It adds a colored badge and tints that session's
+    timeline dot. Since attendees pick one track per time slot, list each
+    track's session as its own separate item (same "time," different
+    "title" and "track") so people can star exactly the one they're in.
+
+  "MY SCHEDULE" (TAP A CARD + PERSONAL CALENDAR EXPORT):
+    Tapping anywhere on a session card (not just the ☆) adds it to that
+    visitor's own personal pick list, stored only in their own phone's
+    browser (localStorage), not shared with anyone else, not visible to
+    you, and not synced across a visitor's own devices. "Show only my
+    picks" filters the list down to starred sessions, and "+ Add my
+    schedule to calendar" bundles all of a visitor's starred, timed
+    sessions into one .ics download. Both need "start" set on an item
+    (see above) to count it. "Clear my picks" (next to it) wipes a
+    visitor's whole pick list at once, with a confirm prompt first.
 
   BOTTOM MINI-BAR:
     The thin bar above the mobile nav (and at the bottom on desktop) always
@@ -104,6 +115,14 @@
     --tag-text: #5c6b00;
     --white: #FFFFFF;
     --nav-height: 56px;
+
+    /* Working session track colors, matching the official agenda PDF's
+       color key: Ecological Forestry = blue, Stewardship for All = red,
+       Stress and Disturbance = green. (Note: this differs from the main
+       event site's teal/olive/brown track colors, which predate the PDF.) */
+    --track-eco-bg: #DCEAFB;   --track-eco-text: #1D5DA6;
+    --track-all-bg: #FBE1E0;   --track-all-text: #B0292B;
+    --track-stress-bg: #DFEEE0; --track-stress-text: #3F7D45;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -205,15 +224,28 @@
   }
   .day-label:first-of-type { margin-top: 0; }
   .timeline { position: relative; border-left: 2px solid #DADAD2; padding-left: 22px; margin-left: 6px; }
-  .event-row { position: relative; padding-bottom: 24px; }
-  .event-row:last-child { padding-bottom: 4px; }
+  .event-row {
+    position: relative; padding: 6px 10px 30px 10px; margin: -6px -10px -6px -10px;
+    border-radius: 6px; cursor: pointer; transition: background-color 0.15s ease;
+  }
+  .event-row:last-child { padding-bottom: 10px; }
+  .event-row:hover, .event-row:focus-visible { background-color: rgba(11,83,103,0.06); }
+  .event-row:focus-visible { outline: 3px solid var(--chartreuse); outline-offset: -2px; }
+  .event-row.is-picked { background-color: var(--tag-bg); }
   .event-row::before {
-    content: ""; position: absolute; left: -28px; top: 5px; width: 10px; height: 10px; border-radius: 50%;
+    content: ""; position: absolute; left: -18px; top: 11px; width: 10px; height: 10px; border-radius: 50%;
     background: var(--chartreuse); border: 2px solid var(--teal);
   }
   .event-time { font-size: 13px; color: var(--teal); font-weight: 700; }
   .event-title { font-size: 1.08rem; font-weight: 600; margin-top: 2px; }
   .event-loc { display: inline-block; margin-top: 6px; font-size: 12px; font-weight: 600; background: var(--tag-bg); color: var(--tag-text); padding: 3px 9px; border-radius: 3px; }
+  .track-badge { display: inline-block; margin-top: 6px; margin-right: 6px; font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 3px; }
+  .track-badge-eco { background: var(--track-eco-bg); color: var(--track-eco-text); }
+  .track-badge-all { background: var(--track-all-bg); color: var(--track-all-text); }
+  .track-badge-stress { background: var(--track-stress-bg); color: var(--track-stress-text); }
+  .event-row[data-track="eco"]::before { border-color: var(--track-eco-text); }
+  .event-row[data-track="all"]::before { border-color: var(--track-all-text); }
+  .event-row[data-track="stress"]::before { border-color: var(--track-stress-text); }
   .event-note { margin-top: 6px; font-size: 0.94rem; color: var(--mid-gray); }
   .event-cal-link { display: inline-block; margin-top: 6px; margin-left: 8px; font-size: 12px; font-weight: 700; color: var(--teal); text-decoration: underline; }
   .loading-note { color: var(--mid-gray); font-size: 0.92rem; }
@@ -225,20 +257,31 @@
   .event-badge-next { background: var(--tag-bg); color: var(--tag-text); }
 
   /* ---------- My schedule ---------- */
+  .schedule-hint {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 14px; padding: 12px 14px;
+    background: var(--tag-bg); color: var(--tag-text); border-radius: 4px; font-size: 0.92rem; font-weight: 600;
+  }
+  .schedule-hint-star {
+    flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%; background: var(--teal); color: var(--chartreuse);
+    display: inline-flex; align-items: center; justify-content: center; font-size: 15px;
+  }
   .schedule-controls {
     display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px 16px;
     margin-bottom: 20px; padding: 12px 14px; background: var(--white); border: 1px solid #E2E1D8; border-radius: 4px;
   }
   .schedule-controls label { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.9rem; color: var(--teal); cursor: pointer; }
   .schedule-controls input[type="checkbox"] { width: 16px; height: 16px; accent-color: var(--teal); }
+  .schedule-controls-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .text-button { background: none; border: none; padding: 0; font: inherit; cursor: pointer; }
   .event-star {
-    background: none; border: 1.5px solid var(--teal); color: var(--teal); border-radius: 50%;
-    width: 44px; height: 44px; font-size: 18px; line-height: 1; cursor: pointer;
-    display: inline-flex; align-items: center; justify-content: center; margin-right: 8px; margin-left: -8px; vertical-align: middle;
+    background: var(--white); border: 1.5px solid var(--teal); color: var(--teal); border-radius: 50%;
+    width: 34px; height: 34px; font-size: 16px; line-height: 1;
+    display: inline-flex; align-items: center; justify-content: center; margin-right: 8px; vertical-align: middle;
     flex-shrink: 0;
   }
-  .event-star.is-picked { background: var(--teal); color: var(--chartreuse); }
+  .event-row.is-picked .event-star { background: var(--teal); color: var(--chartreuse); border-color: var(--teal); }
   .event-cal-link.is-hidden { display: none; }
+  .event-cal-link { position: relative; z-index: 1; }
 
   /* ---------- QR placeholder ---------- */
   .qr-placeholder {
@@ -392,9 +435,16 @@
       <p class="section-sub" style="font-weight:700; color:var(--ink); margin-bottom:4px;">September 15–17, 2026 · Wolfe's Neck Center · Freeport, Maine</p>
       <p class="section-sub">Updates automatically. No need to reload. Check signage on-site too.</p>
     </div>
+    <div class="schedule-hint">
+      <span class="schedule-hint-star" aria-hidden="true">☆</span>
+      Tap the star next to any session to build your own personal schedule, then add it all to your calendar at once.
+    </div>
     <div class="schedule-controls">
       <label><input type="checkbox" id="myScheduleToggle"> Show only my picks (<span id="myScheduleCount">0</span>)</label>
-      <a id="myScheduleCalLink" class="event-cal-link is-hidden" download="my-schedule.ics" href="#">+ Add my schedule to calendar</a>
+      <div class="schedule-controls-actions">
+        <a id="myScheduleCalLink" class="event-cal-link is-hidden" download="my-schedule.ics" href="#">+ Add my schedule to calendar</a>
+        <button type="button" id="myScheduleClear" class="event-cal-link text-button is-hidden">Clear my picks</button>
+      </div>
     </div>
     <div id="scheduleContent">
       <p class="loading-note">Loading schedule…</p>
@@ -497,10 +547,23 @@
   var lastSeenUpdate = null;
   var firstLoad = true;
 
+  // Matches the working session track key used per item in data.json
+  // ("eco" / "all" / "stress") to the label shown in its colored badge.
+  var TRACK_LABELS = {
+    eco: 'Ecological Forestry',
+    all: 'Stewardship for All',
+    stress: 'Stress & Disturbance'
+  };
+
+  // Used both for plain text content AND inside quoted HTML attributes
+  // (data-key, aria-label), so quotes have to be escaped too, not just
+  // &, <, > which is all a textContent/innerHTML round-trip handles on
+  // its own. A title with a straight quote in it (like a quoted talk
+  // title) would otherwise break the attribute and the whole tag.
   function escapeHtml(str) {
     var d = document.createElement('div');
     d.textContent = str == null ? '' : str;
-    return d.innerHTML;
+    return d.innerHTML.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
   function initials(name) {
@@ -690,10 +753,18 @@
         var calLink = item.__times
           ? '<a class="event-cal-link" download="' + escapeHtml((item.title || 'event').replace(/[^\w\- ]/g, '')) + '.ics" href="' + buildIcsHref(item, item.__times.start, item.__times.end) + '">+ Add to calendar</a>'
           : '';
-        html += '<div class="event-row' + (item.__status === 'now' ? ' is-now' : '') + '"' + (item === targetItem ? ' id="scheduleNowTarget"' : '') + '>'
-          + '<button type="button" class="event-star' + (isPicked ? ' is-picked' : '') + '" data-key="' + escapeHtml(key) + '" aria-pressed="' + isPicked + '" aria-label="' + (isPicked ? 'Remove from my schedule' : 'Add to my schedule') + '">' + (isPicked ? '★' : '☆') + '</button>'
+        var trackBadge = item.track && TRACK_LABELS[item.track]
+          ? '<span class="track-badge track-badge-' + item.track + '">' + escapeHtml(TRACK_LABELS[item.track]) + '</span>'
+          : '';
+        var pickLabel = (isPicked ? 'Remove ' : 'Add ') + item.title + (isPicked ? ' from my schedule' : ' to my schedule');
+        html += '<div class="event-row' + (item.__status === 'now' ? ' is-now' : '') + (isPicked ? ' is-picked' : '') + '"'
+          + (item === targetItem ? ' id="scheduleNowTarget"' : '')
+          + (item.track ? ' data-track="' + escapeHtml(item.track) + '"' : '')
+          + ' role="button" tabindex="0" data-key="' + escapeHtml(key) + '" aria-pressed="' + isPicked + '" aria-label="' + escapeHtml(pickLabel) + '">'
+          + '<span class="event-star" aria-hidden="true">' + (isPicked ? '★' : '☆') + '</span>'
           + '<div class="event-time">' + escapeHtml(item.time) + badge + '</div>'
           + '<div class="event-title">' + escapeHtml(item.title) + '</div>'
+          + trackBadge
           + (item.location ? '<span class="event-loc">' + escapeHtml(item.location) + '</span>' : '')
           + (item.note ? '<p class="event-note">' + escapeHtml(item.note) + '</p>' : '')
           + calLink
@@ -709,6 +780,7 @@
 
     var countEl = document.getElementById('myScheduleCount');
     var calEl = document.getElementById('myScheduleCalLink');
+    var clearEl = document.getElementById('myScheduleClear');
     if (countEl) countEl.textContent = pickedEntries.length;
     if (calEl) {
       if (pickedEntries.length) {
@@ -716,6 +788,16 @@
         calEl.classList.remove('is-hidden');
       } else {
         calEl.classList.add('is-hidden');
+      }
+    }
+    // "Clear my picks" counts every pick, even untimed ones that don't
+    // show up in the calendar export, so it's available whenever there's
+    // anything at all to clear.
+    if (clearEl) {
+      if (Object.keys(picks).length) {
+        clearEl.classList.remove('is-hidden');
+      } else {
+        clearEl.classList.add('is-hidden');
       }
     }
   }
@@ -809,10 +891,11 @@
 
   document.getElementById('directorySearch').addEventListener('input', applyDirectoryFilter);
 
-  document.getElementById('scheduleContent').addEventListener('click', function (e) {
-    var btn = e.target.closest && e.target.closest('.event-star');
-    if (!btn) return;
-    var key = btn.getAttribute('data-key');
+  // The whole session card is the tap target for "add to my schedule," not
+  // just the small star, so a tap anywhere on it works. The "+ Add to
+  // calendar" link inside still needs its own normal click behavior, so
+  // taps on that specifically are excluded here.
+  function toggleScheduleKey(key) {
     var picks = getPicks();
     if (picks[key]) { delete picks[key]; } else { picks[key] = true; }
     var saved = savePicks(picks);
@@ -820,10 +903,36 @@
     if (!saved) {
       showToast('Couldn\'t save, your phone may be blocking storage (try turning off Private Browsing, or allowing cookies for this site).');
     }
+  }
+
+  document.getElementById('scheduleContent').addEventListener('click', function (e) {
+    if (e.target.closest && e.target.closest('.event-cal-link')) return;
+    var row = e.target.closest && e.target.closest('.event-row[data-key]');
+    if (!row) return;
+    toggleScheduleKey(row.getAttribute('data-key'));
+  });
+
+  document.getElementById('scheduleContent').addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    if (e.target.closest && e.target.closest('.event-cal-link')) return;
+    var row = e.target.closest && e.target.closest('.event-row[data-key]');
+    if (!row) return;
+    e.preventDefault();
+    toggleScheduleKey(row.getAttribute('data-key'));
   });
 
   document.getElementById('myScheduleToggle').addEventListener('change', function (e) {
     showOnlyMine = e.target.checked;
+    renderSchedule(lastScheduleDays);
+  });
+
+  document.getElementById('myScheduleClear').addEventListener('click', function () {
+    var picks = getPicks();
+    var count = Object.keys(picks).length;
+    if (!count) return;
+    var confirmed = window.confirm('Remove all ' + count + (count === 1 ? ' session' : ' sessions') + ' from your personal schedule? This can\'t be undone.');
+    if (!confirmed) return;
+    savePicks({});
     renderSchedule(lastScheduleDays);
   });
 
